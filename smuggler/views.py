@@ -148,7 +148,13 @@ class LoadDataView(FormView):
             # Remove our tmp files
             for fd, tmp_file in tmp_fixtures:
                 os.close(fd)
-                os.unlink(tmp_file)
+                try:
+                    # This might fail on Windows if django-smugler is in a virtualenv
+                    # with the following error:
+                    # "[WinError 32] The process cannot access the file because it is being used by another process"
+                    os.unlink(tmp_file)
+                except:
+                    pass
         return super().form_valid(form)
 
     def get_admin_form(self, form):
